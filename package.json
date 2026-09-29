@@ -1,0 +1,15 @@
+{
+  "name": "name-match-3d",
+  "version": "1.0.0",
+  "description": "A premium 3D name-finding puzzle game built with Three.js, GSAP and the Web Audio API.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:css": "sass styles/main.scss styles/main.css --no-source-map",
+    "watch:css": "sass --watch styles/main.scss styles/main.css --no-source-map",
+    "start": "npx --yes http-server . -p 5173 -c-1 -o"
+  },
+  "devDependencies": {
+    "sass": "^1.80.0"
+  }
+}

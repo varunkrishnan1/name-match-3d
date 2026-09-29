@@ -1,0 +1,72 @@
+// ==================================================================
+// Mixins
+// ==================================================================
+@use 'sass:map';
+@use 'variables' as *;
+
+/// Mobile-first breakpoint: styles apply at `$name` and above.
+@mixin bp($name) {
+  $size: map.get($breakpoints, $name);
+  @if not $size {
+    @error "Unknown breakpoint `#{$name}`.";
+  }
+  @media (min-width: $size) {
+    @content;
+  }
+}
+
+/// Short landscape screens (phones held sideways).
+@mixin landscape-short {
+  @media (orientation: landscape) and (max-height: 540px) {
+    @content;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+/// Frosted glass surface.
+@mixin glass($bg: $color-glass, $blur: $blur-glass) {
+  background: $bg;
+  border: 1px solid $color-glass-border;
+  -webkit-backdrop-filter: blur($blur) saturate(140%);
+  backdrop-filter: blur($blur) saturate(140%);
+  box-shadow: $shadow-panel;
+}
+
+/// Neon glow using a colour (or CSS var).
+@mixin neon($color, $strength: 1) {
+  box-shadow:
+    0 0 #{12px * $strength} color-mix(in srgb, #{$color} 55%, transparent),
+    0 0 #{32px * $strength} color-mix(in srgb, #{$color} 25%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 3px solid var(--theme-accent);
+    outline-offset: 3px;
+  }
+}
+
+@mixin flex-center($dir: row) {
+  display: flex;
+  flex-direction: $dir;
+  align-items: center;
+  justify-content: center;
+}
+
+/// Hidden until GSAP reveals it (autoAlpha).
+@mixin gsap-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@mixin display-font($weight: 800) {
+  font-family: $font-display;
+  font-weight: $weight;
+  letter-spacing: 0.06em;
+}

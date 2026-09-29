@@ -1,0 +1,240 @@
+// ==================================================================
+// Responsive overrides (mobile-first → larger screens)
+// ==================================================================
+@use 'variables' as *;
+@use 'mixins' as *;
+
+// ---- ≥ 480px ----
+@include bp(sm) {
+  .hud__value {
+    font-size: $font-size-lg;
+  }
+
+  .timer-bar {
+    width: 84px;
+  }
+
+  .logo--xl {
+    --logo-tile: 64px;
+  }
+}
+
+// ---- ≥ 768px (tablet) ----
+@include bp(md) {
+  .screen {
+    padding: calc(#{$space-6} + var(--safe-top)) $space-6 calc(#{$space-6} + var(--safe-bottom));
+  }
+
+  .screen--game {
+    padding: $space-4;
+    gap: $space-3;
+  }
+
+  .screen__title {
+    font-size: $font-size-xl;
+  }
+
+  .level-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: $space-4;
+  }
+
+  .hud {
+    padding: $space-2 $space-4;
+    gap: $space-4;
+
+    &__label {
+      font-size: $font-size-xs;
+    }
+
+    &__value {
+      font-size: $font-size-xl;
+    }
+  }
+
+  .word-list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .word-chip__text {
+    font-size: $font-size-md;
+  }
+
+  .logo--lg {
+    --logo-tile: 48px;
+  }
+
+  .level-banner__title {
+    font-size: 2.6rem;
+  }
+}
+
+// ---- ≥ 1024px (desktop): word list moves to a side panel ----
+@include bp(lg) {
+  .play-area {
+    flex-direction: row;
+    gap: $space-4;
+  }
+
+  .word-panel {
+    width: $word-panel-width;
+    max-height: none;
+    align-self: center;
+    padding: $space-5;
+
+    &__title {
+      font-size: $font-size-sm;
+      margin-bottom: $space-4;
+    }
+
+    &__help {
+      display: block;
+    }
+  }
+
+  .word-list {
+    grid-template-columns: 1fr;
+    gap: $space-2;
+  }
+
+  .word-chip {
+    min-height: 40px;
+    padding: 6px 12px;
+  }
+
+  .hud {
+    max-width: 1100px;
+    width: 100%;
+    align-self: center;
+  }
+
+  .level-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  // Menu: navigation on the left, 3D showcase on the right
+  .menu {
+    max-width: 1300px;
+    grid-template-areas:
+      'logo stage'
+      'nav stage'
+      'stats stage';
+    grid-template-columns: minmax(360px, 420px) 1fr;
+    grid-template-rows: 1fr auto 1fr;
+    align-items: center;
+    column-gap: $space-10;
+
+    .logo {
+      align-self: end;
+      margin: 0 0 $space-6;
+    }
+
+    &__stats {
+      align-self: start;
+    }
+  }
+
+  .logo--lg {
+    --logo-tile: 56px;
+  }
+}
+
+// ---- Short landscape phones: side-by-side layout, compact chips ----
+@include landscape-short {
+  .screen--game {
+    padding: $space-2 calc(#{$space-2} + var(--safe-right)) $space-2 calc(#{$space-2} + var(--safe-left));
+  }
+
+  .play-area {
+    flex-direction: row;
+  }
+
+  .word-panel {
+    width: 220px;
+    max-height: none;
+    padding: $space-2;
+  }
+
+  .word-list {
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .word-chip {
+    min-height: 26px;
+    padding: 2px 6px;
+
+    &__text {
+      font-size: $font-size-xs;
+    }
+  }
+
+  .hud {
+    padding: 4px $space-2;
+  }
+
+  .menu {
+    grid-template-areas:
+      'logo stage'
+      'nav stage'
+      'stats stage';
+    grid-template-columns: minmax(260px, 340px) 1fr;
+    grid-template-rows: auto 1fr auto;
+
+    .logo {
+      --logo-tile: 30px;
+      margin-top: 0;
+    }
+
+    &__nav {
+      gap: $space-2;
+      padding: $space-3;
+
+      .btn {
+        min-height: 40px;
+      }
+    }
+  }
+
+  .toasts {
+    top: calc(64px + var(--safe-top));
+  }
+}
+
+// ---- Very small phones ----
+@media (max-width: 360px) {
+  .hud {
+    gap: 4px;
+
+    .btn--icon {
+      width: 40px;
+      min-height: 40px;
+    }
+  }
+
+  .timer-bar {
+    width: 48px;
+  }
+
+  .word-list {
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  }
+}
+
+// ---- Reduced motion: drop decorative animation ----
+@include reduced-motion {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// ---- Touch devices don't need keyboard help ----
+@media (hover: none) {
+  .kbd-help {
+    display: none;
+  }
+}

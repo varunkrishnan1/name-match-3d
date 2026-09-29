@@ -1,0 +1,365 @@
+// ==================================================================
+// Game screen: HUD, board slot, selection preview, word list, banner
+// ==================================================================
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.screen--game {
+  // The canvas underneath must receive pointer events in the board area.
+  pointer-events: none;
+  align-items: stretch;
+  gap: $space-2;
+  padding: calc(#{$space-2} + var(--safe-top)) calc(#{$space-2} + var(--safe-right))
+    calc(#{$space-2} + var(--safe-bottom)) calc(#{$space-2} + var(--safe-left));
+}
+
+// ---- HUD -------------------------------------------------------------
+.hud {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  align-items: center;
+  gap: $space-2;
+  padding: $space-2;
+  border-radius: $radius-lg;
+
+  &__group {
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+
+    &--end {
+      justify-content: flex-end;
+    }
+  }
+
+  &__stat {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 44px;
+    line-height: 1.1;
+  }
+
+  &__label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: $color-text-muted;
+  }
+
+  &__value {
+    @include display-font(800);
+    font-size: $font-size-md;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__stat--score &__value {
+    color: var(--theme-accent);
+    text-shadow: 0 0 12px color-mix(in srgb, var(--theme-accent) 55%, transparent);
+  }
+
+  &__combo {
+    position: absolute;
+    top: 100%;
+    margin-top: 2px;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $color-warning;
+    white-space: nowrap;
+  }
+
+  &__stat--timer {
+    gap: 3px;
+  }
+
+  &__stat--timer.is-warning &__value {
+    color: $color-error;
+    animation: timer-pulse 1s ease-in-out infinite;
+  }
+}
+
+.timer-bar {
+  display: block;
+  width: 64px;
+  height: 4px;
+  border-radius: $radius-pill;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+
+  &__fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, $color-success, var(--theme-accent));
+    transform-origin: left;
+    transition: transform 1s linear;
+  }
+
+  .is-warning & &__fill {
+    background: linear-gradient(90deg, $color-error, $color-warning);
+  }
+}
+
+@keyframes timer-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.btn--hint {
+  color: $color-warning;
+
+  &.is-empty {
+    opacity: 0.45;
+  }
+
+  &.is-empty .badge {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+// ---- Play area -------------------------------------------------------
+.play-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
+
+.board-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.selection-preview {
+  @include display-font(900);
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 2;
+  padding: 6px 18px;
+  min-height: 40px;
+  border-radius: $radius-pill;
+  font-size: 1.25rem;
+  letter-spacing: 0.22em;
+  color: $color-bg;
+  background: var(--theme-accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent) 55%, transparent);
+  white-space: nowrap;
+  @include gsap-hidden;
+
+  &.is-correct {
+    background: $color-success;
+    box-shadow: 0 0 28px rgba(34, 197, 94, 0.7);
+
+    &::before {
+      content: '✓ ';
+    }
+  }
+
+  &.is-wrong {
+    color: #fff;
+    background: $color-error;
+    box-shadow: 0 0 28px rgba(255, 59, 123, 0.6);
+
+    &::before {
+      content: '✕ ';
+    }
+  }
+}
+
+// ---- Word panel ------------------------------------------------------
+.word-panel {
+  pointer-events: auto;
+  flex: 0 0 auto;
+  max-height: 32vh;
+  overflow-y: auto;
+  padding: $space-3;
+  border-radius: $radius-lg;
+  -webkit-overflow-scrolling: touch;
+
+  &__title {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0 0 $space-2;
+    font-size: $font-size-xs;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: $color-text-muted;
+  }
+
+  &__theme {
+    color: var(--theme-accent);
+    letter-spacing: 0.08em;
+  }
+
+  &__help {
+    display: none;
+    margin: $space-3 0 0;
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+  }
+}
+
+.word-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 6px;
+}
+
+.word-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border-radius: $radius-sm;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition:
+    background $duration,
+    border-color $duration,
+    opacity $duration;
+
+  &__check {
+    @include flex-center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    color: transparent;
+    transition:
+      background $duration,
+      border-color $duration,
+      color $duration;
+
+    .icon {
+      width: 12px;
+      height: 12px;
+    }
+  }
+
+  &__text {
+    position: relative;
+    font-weight: 700;
+    font-size: $font-size-sm;
+    letter-spacing: 0.08em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    // Animated strike-through
+    &::after {
+      content: '';
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      top: 52%;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--word-color);
+      box-shadow: 0 0 8px var(--word-color);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.45s $ease-out;
+    }
+  }
+
+  &.is-found {
+    background: color-mix(in srgb, var(--word-color) 14%, transparent);
+    border-color: color-mix(in srgb, var(--word-color) 55%, transparent);
+
+    .word-chip__text {
+      color: color-mix(in srgb, var(--word-color) 45%, white);
+      &::after {
+        transform: scaleX(1);
+      }
+    }
+
+    .word-chip__check {
+      background: var(--word-color);
+      border-color: var(--word-color);
+      color: $color-bg;
+    }
+  }
+
+  &.is-hinted {
+    animation: chip-hint 0.6s ease-in-out 4;
+  }
+}
+
+@keyframes chip-hint {
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+  50% {
+    border-color: $color-warning;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
+  }
+}
+
+// ---- Level intro banner ---------------------------------------------
+.level-banner {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  translate: -50% -50%;
+  z-index: 5;
+  min-width: min(86vw, 380px);
+  padding: $space-5 $space-8;
+  text-align: center;
+  border-radius: $radius-lg;
+  pointer-events: none;
+  @include glass(rgba(10, 14, 36, 0.7), 12px);
+  border-color: color-mix(in srgb, var(--theme-accent) 50%, transparent);
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--theme-accent) 30%, transparent),
+    $shadow-panel;
+  @include gsap-hidden;
+
+  &__kicker {
+    display: block;
+    font-size: $font-size-xs;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: $color-text-muted;
+  }
+
+  &__title {
+    @include display-font(900);
+    margin: $space-2 0;
+    font-size: $font-size-2xl;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 24px var(--theme-accent);
+    white-space: nowrap;
+  }
+
+  &__sub {
+    margin: 0;
+    color: var(--theme-accent);
+    font-weight: 700;
+    font-size: $font-size-sm;
+    letter-spacing: 0.1em;
+  }
+}

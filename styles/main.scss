@@ -1,0 +1,7 @@
+// ==================================================================
+// Name Match 3D — stylesheet entry point
+// Compile with:  npm run build:css   (outputs styles/main.css)
+// ==================================================================
+@use 'ui';
+@use 'game';
+@use 'responsive';

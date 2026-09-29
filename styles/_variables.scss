@@ -1,0 +1,79 @@
+// ==================================================================
+// Design tokens
+// ==================================================================
+
+// ---- Colour palette ----
+$color-bg: #050816;
+$color-bg-2: #0b1030;
+$color-neon: #00e5ff;
+$color-purple: #8b5cf6;
+$color-lilac: #a78bfa;
+$color-success: #22c55e;
+$color-warning: #f59e0b;
+$color-gold: #facc15;
+$color-error: #ff3b7b;
+$color-text: #f4f7ff;
+$color-text-muted: rgba(226, 232, 255, 0.68);
+$color-glass: rgba(255, 255, 255, 0.08);
+$color-glass-strong: rgba(255, 255, 255, 0.12);
+$color-glass-border: rgba(255, 255, 255, 0.14);
+$color-backdrop: rgba(5, 8, 22, 0.6);
+
+// ---- Typography ----
+$font-display: 'Orbitron', 'Exo 2', system-ui, sans-serif;
+$font-body: 'Exo 2', 'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-size-xs: 0.6875rem;  // 11px
+$font-size-sm: 0.8125rem;  // 13px
+$font-size-md: 0.9375rem;  // 15px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.5rem;     // 24px
+$font-size-2xl: 2rem;      // 32px
+
+// ---- Spacing scale ----
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-8: 32px;
+$space-10: 40px;
+
+// ---- Radii ----
+$radius-sm: 10px;
+$radius-md: 14px;
+$radius-lg: 20px;
+$radius-pill: 999px;
+
+// ---- Shadows ----
+$shadow-panel: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+$shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.35);
+$shadow-press: 0 2px 8px rgba(0, 0, 0, 0.4);
+
+// ---- Motion ----
+$ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+$ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+$duration-fast: 0.15s;
+$duration: 0.25s;
+
+// ---- Blur ----
+$blur-glass: 16px;
+
+// ---- Layers ----
+$z-scene: 0;
+$z-app: 10;
+$z-overlay: 30;
+$z-toast: 40;
+$z-confetti: 50;
+
+// ---- Breakpoints (mobile-first, min-width) ----
+$breakpoints: (
+  sm: 480px,
+  md: 768px,
+  lg: 1024px,
+  xl: 1440px,
+);
+
+// ---- Layout ----
+$word-panel-width: 300px;
+$hud-height: 64px;

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#050816" />
+  <meta name="description" content="Name Match 3D — a premium 3D name-finding puzzle game. Drag across glowing tiles to find 10 hidden names in each of 10 themed levels." />
+  <title>Name Match 3D</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='4' y='4' width='56' height='56' rx='14' fill='%23050816' stroke='%2300E5FF' stroke-width='4'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='900' font-size='32' text-anchor='middle' fill='%2300E5FF'%3EN%3C/text%3E%3C/svg%3E" />
+
+  <!-- Fonts: Orbitron (display) + Exo 2 (UI & tile letters) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&family=Orbitron:wght@600;800;900&display=swap" />
+
+  <!-- Compiled from styles/main.scss (npm run build:css) -->
+  <link rel="stylesheet" href="styles/main.css" />
+
+  <!-- GSAP (classic script, exposed as window.gsap and re-exported in js/utils.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+  <!-- Three.js via import map (ES modules) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</head>
+
+<body>
+  <!-- WebGL scene (board + background) -->
+  <canvas id="scene" class="scene-canvas" aria-hidden="true"></canvas>
+  <!-- 2D confetti overlay -->
+  <canvas id="confetti" class="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- SVG sprite: icons reused across the UI -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2zm-2.5 18h5v1a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M14.7 5.3a1 1 0 0 1 0 1.4L9.4 12l5.3 5.3a1 1 0 0 1-1.4 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.4 0z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.2-6.5a1 1 0 0 0 0-1.7L9.5 4.6A1 1 0 0 0 8 5.5z"/></symbol>
+  </svg>
+
+  <main id="app" class="app">
+
+    <!-- =============== 1. SPLASH =============== -->
+    <section class="screen screen--splash is-active" id="screen-splash" data-screen="splash" aria-label="Loading">
+      <div class="logo logo--xl" aria-label="Name Match 3D">
+        <div class="logo__tiles" aria-hidden="true">
+          <span>N</span><span>A</span><span>M</span><span>E</span>
+        </div>
+        <div class="logo__tiles logo__tiles--accent" aria-hidden="true">
+          <span>M</span><span>A</span><span>T</span><span>C</span><span>H</span>
+        </div>
+        <span class="logo__badge" aria-hidden="true">3D</span>
+      </div>
+      <div class="loader" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="loader">
+        <div class="loader__bar"><span class="loader__fill" id="loader-fill"></span></div>
+        <p class="loader__label" id="loader-label">Warming up the tiles…</p>
+      </div>
+      <button class="btn btn--primary btn--xl splash__start" id="btn-start" data-action="start" hidden>
+        Tap to Start
+      </button>
+      <p class="splash__hint">Best with sound on</p>
+    </section>
+
+    <!-- =============== 2. MAIN MENU =============== -->
+    <section class="screen screen--menu" id="screen-menu" data-screen="menu" aria-label="Main menu">
+      <div class="menu">
+        <div class="logo logo--lg" aria-label="Name Match 3D">
+          <div class="logo__tiles" aria-hidden="true"><span>N</span><span>A</span><span>M</span><span>E</span></div>
+          <div class="logo__tiles logo__tiles--accent" aria-hidden="true"><span>M</span><span>A</span><span>T</span><span>C</span><span>H</span></div>
+          <span class="logo__badge" aria-hidden="true">3D</span>
+        </div>
+        <nav class="menu__nav panel">
+          <button class="btn btn--primary btn--xl" data-action="play">
+            <svg class="icon"><use href="#i-play"/></svg>
+            <span>Play <small id="menu-play-sub">Level 1</small></span>
+          </button>
+          <button class="btn" data-action="levels">Level Select</button>
+          <button class="btn btn--amber" data-action="daily">Daily Challenge <small id="menu-daily-sub"></small></button>
+          <div class="menu__row">
+            <button class="btn btn--ghost" data-action="settings">Settings</button>
+            <button class="btn btn--ghost" data-action="credits">Credits</button>
+          </div>
+        </nav>
+        <p class="menu__stats" id="menu-stats"></p>
+        <!-- Empty slot the 3D showcase board is fitted into -->
+        <div class="menu__stage" id="menu-stage" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <!-- =============== 3. LEVEL SELECT =============== -->
+    <section class="screen screen--levels" id="screen-levels" data-screen="levels" aria-label="Level select">
+      <header class="screen__header">
+        <button class="btn btn--icon" data-action="back" aria-label="Back"><svg class="icon"><use href="#i-back"/></svg></button>
+        <h2 class="screen__title">Select Level</h2>
+        <div class="stars-total" id="stars-total"><svg class="icon"><use href="#i-star"/></svg><span>0/30</span></div>
+      </header>
+      <div class="level-grid" id="level-grid" role="list"></div>
+    </section>
+
+    <!-- =============== 4. GAME =============== -->
+    <section class="screen screen--game" id="screen-game" data-screen="game" aria-label="Game">
+      <header class="hud panel">
+        <div class="hud__group">
+          <button class="btn btn--icon" data-action="pause" aria-label="Pause (Esc)"><svg class="icon"><use href="#i-pause"/></svg></button>
+          <div class="hud__stat">
+            <span class="hud__label">Level</span>
+            <strong class="hud__value" id="hud-level">1</strong>
+          </div>
+        </div>
+        <div class="hud__stat hud__stat--score">
+          <span class="hud__label">Score</span>
+          <strong class="hud__value" id="hud-score">0</strong>
+          <span class="hud__combo" id="hud-combo" aria-live="polite"></span>
+        </div>
+        <div class="hud__stat hud__stat--timer" id="hud-timer-wrap">
+          <span class="hud__label">Time</span>
+          <strong class="hud__value" id="hud-timer">0:00</strong>
+          <span class="timer-bar"><span class="timer-bar__fill" id="hud-timer-bar"></span></span>
+        </div>
+        <div class="hud__group hud__group--end">
+          <div class="hud__stat">
+            <span class="hud__label">Found</span>
+            <strong class="hud__value" id="hud-found">0/10</strong>
+          </div>
+          <button class="btn btn--icon btn--hint" data-action="hint" aria-label="Use hint (H)">
+            <svg class="icon"><use href="#i-bulb"/></svg>
+            <span class="badge" id="hud-hints">3</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="play-area">
+        <!-- Transparent area the 3D board is fitted into -->
+        <div class="board-area" id="board-area">
+          <div class="selection-preview" id="selection-preview" aria-live="polite"></div>
+        </div>
+        <aside class="word-panel panel" aria-label="Names to find">
+          <h2 class="word-panel__title">Find these names <span class="word-panel__theme" id="word-theme"></span></h2>
+          <ul class="word-list" id="word-list"></ul>
+          <p class="word-panel__help">Drag across letters in a straight line — or tap the first and last letter.<span class="kbd-help"> Keyboard: arrows + Enter.</span></p>
+        </aside>
+      </div>
+
+      <div class="level-banner" id="level-banner" aria-live="polite">
+        <span class="level-banner__kicker" id="banner-kicker"></span>
+        <h2 class="level-banner__title" id="banner-title"></h2>
+        <p class="level-banner__sub" id="banner-sub">Find all 10 names</p>
+      </div>
+    </section>
+
+    <!-- =============== 5. PAUSE (overlay) =============== -->
+    <section class="overlay" id="overlay-pause" data-overlay="pause" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+      <div class="panel panel--dialog">
+        <h2 class="dialog__title" id="pause-title">Paused</h2>
+        <div class="dialog__actions">
+          <button class="btn btn--primary btn--lg" data-action="resume">Resume</button>
+          <button class="btn" data-action="restart">Restart Level</button>
+          <button class="btn btn--ghost" data-action="exit">Exit to Menu</button>
+        </div>
+        <div class="toggles toggles--compact">
+          <button class="toggle" role="switch" aria-checked="true" data-setting="sound"><span class="toggle__label">Sound FX</span><span class="toggle__track"><span class="toggle__thumb"></span></span></button>
+          <button class="toggle" role="switch" aria-checked="true" data-setting="music"><span class="toggle__label">Music</span><span class="toggle__track"><span class="toggle__thumb"></span></span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 6. LEVEL COMPLETE (overlay) =============== -->
+    <section class="overlay" id="overlay-complete" data-overlay="complete" role="dialog" aria-modal="true" aria-labelledby="complete-title">
+      <div class="panel panel--dialog panel--result">
+        <p class="dialog__kicker" id="complete-kicker">Level 1</p>
+        <h2 class="dialog__title dialog__title--success" id="complete-title">Level Complete!</h2>
+        <div class="result-stars" id="result-stars" aria-label="Stars earned">
+          <svg class="result-star"><use href="#i-star"/></svg>
+          <svg class="result-star result-star--big"><use href="#i-star"/></svg>
+          <svg class="result-star"><use href="#i-star"/></svg>
+        </div>
+        <dl class="result-table">
+          <div><dt>Words</dt><dd id="res-words">0</dd></div>
+          <div><dt>Time bonus</dt><dd id="res-bonus">0</dd></div>
+          <div><dt>Time taken</dt><dd id="res-time">0:00</dd></div>
+          <div class="result-table__total"><dt>Total</dt><dd id="res-total">0</dd></div>
+        </dl>
+        <p class="result-best" id="res-best"></p>
+        <div class="dialog__actions dialog__actions--row">
+          <button class="btn btn--primary btn--lg" data-action="next" id="btn-next">Next Level</button>
+          <button class="btn" data-action="replay">Replay</button>
+          <button class="btn btn--ghost" data-action="menu">Menu</button>
+        </div>
+        <button class="btn btn--link" data-action="share">Share result</button>
+      </div>
+    </section>
+
+    <!-- =============== 7. LEVEL FAILED (overlay) =============== -->
+    <section class="overlay" id="overlay-failed" data-overlay="failed" role="dialog" aria-modal="true" aria-labelledby="failed-title">
+      <div class="panel panel--dialog panel--result">
+        <p class="dialog__kicker" id="failed-kicker">Level 1</p>
+        <h2 class="dialog__title dialog__title--fail" id="failed-title">Time's Up!</h2>
+        <p class="dialog__text" id="failed-message">So close! Every run makes you sharper.</p>
+        <p class="dialog__text dialog__text--muted" id="failed-stats"></p>
+        <div class="dialog__actions dialog__actions--row">
+          <button class="btn btn--primary btn--lg" data-action="replay">Try Again</button>
+          <button class="btn btn--ghost" data-action="menu">Menu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 8. SETTINGS =============== -->
+    <section class="screen screen--settings" id="screen-settings" data-screen="settings" aria-label="Settings">
+      <header class="screen__header">
+        <button class="btn btn--icon" data-action="back" aria-label="Back"><svg class="icon"><use href="#i-back"/></svg></button>
+        <h2 class="screen__title">Settings</h2>
+        <span></span>
+      </header>
+      <div class="panel panel--narrow">
+        <div class="toggles">
+          <button class="toggle" role="switch" aria-checked="true" data-setting="sound"><span class="toggle__label">Sound effects</span><span class="toggle__track"><span class="toggle__thumb"></span></span></button>
+          <button class="toggle" role="switch" aria-checked="true" data-setting="music"><span class="toggle__label">Music</span><span class="toggle__track"><span class="toggle__thumb"></span></span></button>
+          <button class="toggle" role="switch" aria-checked="true" data-setting="vibration"><span class="toggle__label">Vibration</span><span class="toggle__track"><span class="toggle__thumb"></span></span></button>
+          <button class="toggle" role="switch" aria-checked="false" data-setting="performance">
+            <span class="toggle__label">Performance mode <small>Fewer particles, no bloom or shadows</small></span>
+            <span class="toggle__track"><span class="toggle__thumb"></span></span>
+          </button>
+        </div>
+        <button class="btn btn--danger" data-action="reset-progress" id="btn-reset">Reset progress</button>
+      </div>
+    </section>
+
+    <!-- =============== 9. CREDITS =============== -->
+    <section class="screen screen--credits" id="screen-credits" data-screen="credits" aria-label="Credits">
+      <header class="screen__header">
+        <button class="btn btn--icon" data-action="back" aria-label="Back"><svg class="icon"><use href="#i-back"/></svg></button>
+        <h2 class="screen__title">Credits</h2>
+        <span></span>
+      </header>
+      <div class="panel panel--narrow credits">
+        <h3>Game concept</h3>
+        <p>Name Match 3D — an original 3D take on classic word-search puzzles: find 10 hidden names across 10 themed worlds.</p>
+        <h3>Design &amp; development</h3>
+        <p>Your Studio Name Here</p>
+        <h3>Technology</h3>
+        <p>Three.js (MIT) · GSAP (GreenSock standard license) · Web Audio API</p>
+        <h3>Assets</h3>
+        <p>All tiles, textures, particles and sounds are generated procedurally at runtime. Fonts: Orbitron &amp; Exo 2 (SIL Open Font License) via Google Fonts.</p>
+      </div>
+    </section>
+
+    <!-- Toasts & floating score text -->
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <div class="float-layer" id="float-layer" aria-hidden="true"></div>
+  </main>
+
+  <noscript>
+    <div class="noscript">Name Match 3D needs JavaScript enabled to play.</div>
+  </noscript>
+</body>
+</html>
